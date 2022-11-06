@@ -1,5 +1,6 @@
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
+ctx.lineWidth = 24;
 
 var stroke_color = "white";
 
@@ -40,17 +41,41 @@ window.addEventListener("load", (e) => {
     myimg.onchange = (e) => {
         var img = new Image();
         img.onload = function () {
+            const imgHeight = img.height;
+            const imgWidth = img.width;
+            canvas.setAttribute("width", imgWidth);
+            canvas.setAttribute("height", imgHeight);
             ctx.drawImage(img, 0, 0);
+            // console.log(img.height, "Height");
+            // console.log(img.width, "Width")
         };
         img.src = URL.createObjectURL(e.target.files[0]);
     };
 
-    const radioButtons = document.querySelectorAll('input[type=radio]');
-    radioButtons.forEach(input => {
+    const radioButtons = document.querySelectorAll("input[type=radio]");
+    radioButtons.forEach((input) => {
         input.addEventListener("change", (e) => {
-            stroke_color = e.target.value
-        })
-    })
+            stroke_color = e.target.value;
+        });
+    });
+
+    const brushSize = document.querySelector("#brush_size");
+    brushSize.addEventListener("keyup", (e) => {
+        let val = e.target.value;
+        if (val) {
+            ctx.lineWidth = val;
+        } else {
+            ctx.lineWidth = 24;
+        }
+    });
+
+    const downloadBtn = document.querySelector("#download_mask");
+    downloadBtn.addEventListener("click", () => {
+        const anchor = document.createElement("a");
+        anchor.href = canvas.toDataURL("image/png");
+        anchor.download = "mask_image.png";
+        anchor.click();
+    });
 });
 
 let coord = { x: 0, y: 0 };
@@ -86,9 +111,6 @@ function stopPainting() {
 function sketch(event) {
     if (!paint) return;
     ctx.beginPath();
-
-    ctx.lineWidth = 30;
-
     // Sets the end of the lines drawn
     // to a round shape.
     ctx.lineCap = "round";
